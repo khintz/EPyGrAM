@@ -20,7 +20,7 @@ class _LocalHost(object):
     @property
     def user_site(self):
         """Python user site, where packages are looked for"""
-        user_site = site.getusersitepackages()
+        user_site = site.getsitepackages()
         if isinstance(user_site, list):
             user_site = user_site[0]
         if not os.path.exists(user_site):
