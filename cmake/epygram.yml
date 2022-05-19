@@ -1,0 +1,11 @@
+name: epygram
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip>=21.1
+  - eccodes
+  - proj
+  - geos
+  # - pip:
+  #   - docopt

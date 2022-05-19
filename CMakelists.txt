@@ -1,0 +1,105 @@
+cmake_minimum_required(VERSION 3.23)
+
+project(EPyGrAM)
+
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+# Apple: Don't modify install_name when touching RPATH.
+if(POLICY CMP0068)
+    cmake_policy(SET CMP0068 NEW)
+endif()
+
+# target_sources: use absolute path for INTERFACE_SOURCES.
+if(POLICY CMP0076)
+    cmake_policy(SET CMP0076 NEW)
+endif()
+
+find_package(Python COMPONENTS Interpreter REQUIRED)
+
+
+IF(NOT ECCODES_INCLUDE)
+    MESSAGE(STATUS "ECCODES_INCLUDE not set - Trying to find it automatically")
+    find_package(ECCODES REQUIRED)
+ELSE()
+    MESSAGE(STATUS "ECCODES_LIBRARY: ${ECCODES_LIBRARY}")
+    MESSAGE(STATUS "ECCODES_INCLUDE: ${ECCODES_INCLUDE}")
+ENDIF()
+
+
+IF(NOT HDF5_INCLUDE)
+    MESSAGE(STATUS "HDF5_INCLUDE not set - Trying to find it automatically")
+    find_package(HDF5 REQUIRED)
+ELSE()
+    IF(NOT HDF5_LIBRARY)
+        SET(HDF5_LIBRARY /usr/local/lib/libhdf5.so)
+    ENDIF()
+
+    IF(NOT HDF5CPP_LIBRARY)
+        SET(HDF5CPP_LIBRARY /usr/local/lib/libhdf5_cpp.so)
+    ENDIF()
+
+    MESSAGE(STATUS "HDF5_LIBRARY: ${HDF5_LIBRARY}")
+    MESSAGE(STATUS "HDF5CPP_LIBRARY: ${HDF5CPP_LIBRARY}")
+    MESSAGE(STATUS "HDF5_INCLUDE: ${HDF5_INCLUDE}")
+ENDIF()
+
+
+IF(NOT NETCDF_INCLUDE)
+    MESSAGE(STATUS "NETCDF_INCLUDE not set - Trying to find it automatically")
+    find_package(NETCDF REQUIRED)
+ELSE()
+
+    IF(NOT NETCDF_LIBRARY)
+        SET(NETCDF_LIBRARY /usr/local/lib/libnetcdf.so)
+    ENDIF()
+
+    MESSAGE(STATUS "NETCDF_LIBRARY: ${NETCDF_LIBRARY}")
+    MESSAGE(STATUS "NETCDF_INCLUDE: ${NETCDF_INCLUDE}")
+ENDIF()
+
+IF(NOT PROJ_INCLUDE)
+    MESSAGE(STATUS "PROJ_INCLUDE not set - Trying to find it automatically")
+    find_package(PROJ REQUIRED)
+ELSE()
+    MESSAGE(STATUS "PROJ_INCLUDE: ${PROJ_INCLUDE}")
+ENDIF()
+
+IF(NOT GEOS_INCLUDE)
+    MESSAGE(STATUS "GEOS_INCLUDE not set - Trying to find it automatically")
+    find_package(GEOS REQUIRED)
+ELSE()
+    MESSAGE(STATUS "GEOS_INCLUDE: ${GEOS_INCLUDE}")
+ENDIF()
+
+# detect virtualenv and set Pip args accordingly
+if(DEFINED ENV{VIRTUAL_ENV} OR DEFINED ENV{CONDA_PREFIX})
+  set(_pip_args)
+else()
+  set(_pip_args "--user")
+endif()
+
+#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} scipy)
+#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} pyproj)
+#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} cartopy h5py netcdf4)
+#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} Pillow six pyresample)
+#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} matplotlib)
+#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} eccodes)
+
+#execute_process(COMMAND ${Python_EXECUTABLE} _install/setup_epygram.py)
+
+# PIL (not pn pypi - used Pillow instead)
+# cartopy (tjek)
+# eccodes
+# gribapi
+# h5py (tjek)
+# matplotlib (tjek)
+# mpl_toolkits
+# netCDF4 (tjek)
+# numpy (tjek)
+# pyproj (tjek)
+# pyresample (tjek)
+# pyvgrid (not pn pypi)
+# scipy (tjek)
+# six (not pn pypi)
+# vtk (not pn pypi)
+# web
