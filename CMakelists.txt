@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.23)
-include(ExternalProject)
 
 project(EPyGrAM)
 
@@ -81,13 +80,6 @@ else()
   set(_pip_args "--user")
 endif()
 
-#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} scipy)
-#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} pyproj)
-#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} cartopy h5py netcdf4)
-#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} Pillow six pyresample)
-#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} matplotlib)
-#execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} eccodes)
-
 # Set up bronx and footprints from Meteo-France needed by EPyGrAM
 set(EXTERNALS_DIR ${CMAKE_CURRENT_BINARY_DIR}/externals)
 
@@ -101,26 +93,44 @@ MESSAGE(STATUS "VORTEXSITE_TARBALL_URL: ${VORTEXSITE_TARBALL_URL}")
 if(NOT EXISTS "${VORTEXSITE_TARBALL}")
     file(DOWNLOAD ${VORTEXSITE_TARBALL_URL} ${VORTEXSITE_TARBALL})
 endif()
-add_custom_target(vortexsite-download DEPENDS ${VORTEXSITE_TARBALL})
 
 file(ARCHIVE_EXTRACT INPUT ${VORTEXSITE_TARBALL} DESTINATION ${VORTEXSITE_DIR})
 
-#execute_process(COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/_install/setup_epygram.py)
+set(BRONX_DIR ${VORTEXSITE_DIR}/bronx)
+set(FOOTPRINTS_DIR ${VORTEXSITE_DIR}/footprints)
+set(ARPIFS_DIR ${VORTEXSITE_DIR}/arpifs_listings)
+set(TAYLORISM_DIR ${VORTEXSITE_DIR}/taylorism)
 
+execute_process(
+  COMMAND "${Python_EXECUTABLE}" -c "if True:
+    import site
+    print(site.getsitepackages()[0])"
+  OUTPUT_VARIABLE PYTHON_SITE
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# PIL (not pn pypi - used Pillow instead)
-# cartopy (tjek)
-# eccodes
-# gribapi
-# h5py (tjek)
-# matplotlib (tjek)
-# mpl_toolkits
-# netCDF4 (tjek)
-# numpy (tjek)
-# pyproj (tjek)
-# pyresample (tjek)
-# pyvgrid (not pn pypi)
-# scipy (tjek)
-# six (not pn pypi)
-# vtk (not pn pypi)
-# web
+MESSAGE(STATUS "PYTHON_SITE: ${PYTHON_SITE}")
+
+install(
+  DIRECTORY ${BRONX_DIR}
+  DESTINATION ${PYTHON_SITE}
+)
+install(
+  DIRECTORY ${FOOTPRINTS_DIR}
+  DESTINATION ${PYTHON_SITE}
+)
+install(
+  DIRECTORY ${ARPIFS_DIR}
+  DESTINATION ${PYTHON_SITE}
+)
+install(
+  DIRECTORY ${TAYLORISM_DIR}
+  DESTINATION ${PYTHON_SITE}
+)
+
+install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} scipy)")
+install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} pyproj)")
+install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} cartopy h5py netcdf4)")
+install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} Pillow six)")
+install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} matplotlib)")
+install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} eccodes)")
+install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/_install/setup_epygram.py)")
