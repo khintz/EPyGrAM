@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
+include(ExternalProject)
 
 project(EPyGrAM)
 
@@ -13,6 +14,8 @@ endif()
 if(POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
+
+MESSAGE(STATUS "CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
 
 find_package(Python COMPONENTS Interpreter REQUIRED)
 
@@ -85,7 +88,25 @@ endif()
 #execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} matplotlib)
 #execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${_pip_args} eccodes)
 
-#execute_process(COMMAND ${Python_EXECUTABLE} _install/setup_epygram.py)
+# Set up bronx and footprints from Meteo-France needed by EPyGrAM
+set(EXTERNALS_DIR ${CMAKE_CURRENT_BINARY_DIR}/externals)
+
+set(VORTEXSITE_VERSION "1.5.1")
+set(VORTEXSITE_TARBALL_URL https://opensource.umr-cnrm.fr/attachments/download/2753/vortex_site-${VORTEXSITE_VERSION}.tgz)
+set(VORTEXSITE_TARBALL ${CMAKE_CURRENT_BINARY_DIR}/tarballs/vortex_site-${VORTEXSITE_VERSION}.tgz)
+set(VORTEXSITE_DIR ${EXTERNALS_DIR}/vortex_site-${VORTEXSITE_VERSION})
+
+MESSAGE(STATUS "VORTEXSITE_TARBALL_URL: ${VORTEXSITE_TARBALL_URL}")
+
+if(NOT EXISTS "${VORTEXSITE_TARBALL}")
+    file(DOWNLOAD ${VORTEXSITE_TARBALL_URL} ${VORTEXSITE_TARBALL})
+endif()
+add_custom_target(vortexsite-download DEPENDS ${VORTEXSITE_TARBALL})
+
+file(ARCHIVE_EXTRACT INPUT ${VORTEXSITE_TARBALL} DESTINATION ${VORTEXSITE_DIR})
+
+#execute_process(COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/_install/setup_epygram.py)
+
 
 # PIL (not pn pypi - used Pillow instead)
 # cartopy (tjek)
